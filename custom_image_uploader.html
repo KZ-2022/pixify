@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .image-uploader-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="image-uploader-container">
+    <div class="image-uploader-label">이미지 업로드</div>
+    <input type="file" accept="image/*" id="image-uploader" class="image-uploader" name="image-uploader">
+  </div>
+  <script>
+    document.getElementById("image-uploader").addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          let message = {
+            type: "setSessionState",
+            key: "uploaded_image_base64",
+            value: e.target.result,
+          };
+          window.parent.postMessage(message, "*");
+          
+          // Trigger Streamlit rerun
+          message = {type: "rerunScript"};
+          window.parent.postMessage(message, "*");
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+<!-- 
+def custom_image_uploader_ui():
+    st.write(
+        """
+        <style>
+            .image-uploader-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                background-color: #f0f0f0;
+                padding: 20px;
+                border-radius: 5px;
+                margin-bottom: 20px;
+                width: 50%;
+            }
+            .image-uploader-label {
+                font-weight: bold;
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+            .image-uploader {
+                cursor: pointer;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    with open("custom_image_uploader.html", "r", encoding="utf-8") as f:
+        html_string = f.read()   
+
+    st.markdown(html_string, unsafe_allow_html=True)
+
+    if "uploaded_image_base64" in st.session_state:
+        img_data = base64.b64decode(st.session_state.uploaded_image_base64.split(",")[1])
+        uploaded_file = BytesIO(img_data)
+        return uploaded_file
+    else:
+        return None
+
+uploaded_image = custom_image_uploader_ui() -->
